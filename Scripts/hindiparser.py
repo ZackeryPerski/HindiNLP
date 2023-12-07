@@ -1,4 +1,5 @@
 import json
+import unittest
 
 def introduction():
     print("Welcome to the Hindi Parser!")
@@ -27,6 +28,30 @@ def mainFunction():
             else:
                 print("That was an invalid phrase!")
                 print("")
+
+def test():
+    return structure1() or structure2() or structure3() or structure4() or structure5() or structure6() or structure7()
+
+def structure1():
+    return False
+
+def structure2():
+    return False
+
+def structure3():
+    return False
+
+def structure4():
+    return False
+
+def structure5():
+    return False
+
+def structure6():
+    return False
+
+def structure7():
+    return False
 
 
 
