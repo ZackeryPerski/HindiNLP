@@ -31,26 +31,32 @@ def mainFunction():
                 print("")
 
 
-
 def structure1():
+    #SUBJECT ADJ_PHRASE OBJECT VERB
     return False
 
 def structure2():
+    #SUBJECT VERB OBJECT
     return False
 
 def structure3():
+    #SUBJECT VERB
     return False
 
 def structure4():
+    #ADJ_PHRASE SUBJECT AD_VERB_FREQUENCY OBJECT VERB
     return False
 
 def structure5():
+    #SUBJECT AD_VERB_FREQUENCY AD_VERB_PHRASE OBJECT VERB
     return False
 
 def structure6():
+    #SUBJECT AD_VERB_FREQUENCY AD_VERB_PHRASE TIME OBJECT VERB
     return False
 
 def structure7():
+    #SUBJECT AD_VERB_FREQUENCY AD_VERB_PHRASE TIME MANNER OBJECT VERB
     return False
 
 def loadWords():
