@@ -1,6 +1,7 @@
 import json
 import unittest
 
+
 def introduction():
     print("Welcome to the Hindi Parser!")
     print("")#TODO
@@ -22,15 +23,14 @@ def mainFunction():
         if(phrase == 'quit'):
             quit()
         else:
-            if(test(phrase)):
+            if(isHindi(phrase)):
                 print("That was a valid phrase!")
                 print("")#TODO
             else:
                 print("That was an invalid phrase!")
                 print("")
 
-def test():
-    return structure1() or structure2() or structure3() or structure4() or structure5() or structure6() or structure7()
+
 
 def structure1():
     return False
@@ -53,11 +53,87 @@ def structure6():
 def structure7():
     return False
 
+def loadWords():
+    print("To be implemented")
+
+def isHindi(sentence):
+    return structure1() or structure2() or structure3() or structure4() or structure5() or structure6() or structure7()
 
 
-if __name__=="__main__":
-    introduction()
-    mainFunction()
+class TestStringMethods(unittest.TestCase):
+
+    def test_real_sentence1(self):
+        self.assertTrue(isHindi())
+
+    def test_real_sentence2(self):
+        self.assertTrue(isHindi())
+
+    def test_real_sentence3(self):
+        self.assertTrue(isHindi())
+    
+    def test_real_sentence4(self):
+        self.assertTrue(isHindi())
+
+    def test_real_sentence5(self):
+        self.assertTrue(isHindi())
+
+    def test_real_sentence6(self):
+        self.assertTrue(isHindi())
+
+    def test_real_sentence7(self):
+        self.assertTrue(isHindi())
+
+    def test_real_sentence8(self):
+        self.assertTrue(isHindi())
+
+    def test_real_sentence9(self):
+        self.assertTrue(isHindi())
+
+    def test_real_sentence10(self):
+        self.assertTrue(isHindi())
+
+    def test_bad_sentence1(self):
+        self.assertFalse(isHindi())
+
+    def test_bad_sentence2(self):
+        self.assertFalse(isHindi())
+
+    def test_bad_sentence3(self):
+        self.assertFalse(isHindi())
+
+    def test_bad_sentence4(self):
+        self.assertFalse(isHindi())
+
+    def test_bad_sentence5(self):
+        self.assertFalse(isHindi())
+
+    def test_bad_sentence6(self):
+        self.assertFalse(isHindi())
+
+    def test_bad_sentence7(self):
+        self.assertFalse(isHindi())
+
+    def test_bad_sentence8(self):
+        self.assertFalse(isHindi())
+
+    def test_bad_sentence9(self):
+        self.assertFalse(isHindi())
+
+    def test_bad_sentence10(self):
+        self.assertFalse(isHindi())
+
+
+if __name__=='__main__':
+    loadWords()
+    while True:
+        testingEnabled = input("Enter Testing Mode? [y/n]: ")
+        if testingEnabled == 'y' or testingEnabled == 'n':
+            break
+    if testingEnabled == 'y':
+        unittest.main()
+    else:
+        introduction()
+        mainFunction()
     
 
 
