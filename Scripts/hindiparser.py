@@ -1,6 +1,13 @@
 import json
 import unittest
 
+'''
+Things that can be null:
+subject
+object
+But not both...
+'''
+
 
 def introduction():
     print("Welcome to the Hindi Parser!")
@@ -31,39 +38,28 @@ def mainFunction():
                 print("")
 
 
-def structure1():
-    #SUBJECT ADJ_PHRASE OBJECT VERB
-    return False
+def validSentenceStructure(words):
+    #This is the largest sentence structure.
+    if(len(words)==1):
+        return (False, "A complete sentence cannot be framed with a single word.")
+    lastWord = words[len(words)-1]
+    lastSymbol = lastWord[len(lastWord)-1]
+    if (not(lastSymbol=="|" or lastSymbol=="?")):
+        return (False, "A complete sentence needs to end with a full stop '|' or a question mark '?'")
+    lastWord.pop() 
+    if(not(lastWord=="है" or lastWord == "हूँ" or lastWord == "हैं" or lastWord == "हो" or lastWord == "ता" or lastWord == "ते" or lastWord == "ती")):
+        return (False, "A sentence cannot be in present tense without one of these ending present tense words: 'है' 'हूँ' 'हैं' 'हो' 'ता' 'ते' 'ती'")
+    words.pop()#removes the last word which at this point contained a proper ending for the sentence and was a present tense word. The rest of the sentence is now considered.
+    #At this point we need to start checking individual words agains the structure.
+    
 
-def structure2():
-    #SUBJECT VERB OBJECT
-    return False
-
-def structure3():
-    #SUBJECT VERB
-    return False
-
-def structure4():
-    #ADJ_PHRASE SUBJECT AD_VERB_FREQUENCY OBJECT VERB
-    return False
-
-def structure5():
-    #SUBJECT AD_VERB_FREQUENCY AD_VERB_PHRASE OBJECT VERB
-    return False
-
-def structure6():
-    #SUBJECT AD_VERB_FREQUENCY AD_VERB_PHRASE TIME OBJECT VERB
-    return False
-
-def structure7():
-    #SUBJECT AD_VERB_FREQUENCY AD_VERB_PHRASE TIME MANNER OBJECT VERB
-    return False
 
 def loadWords():
     print("To be implemented")
 
 def isHindi(sentence):
-    return structure1() or structure2() or structure3() or structure4() or structure5() or structure6() or structure7()
+    words = sentence.split(" ")
+    return validSentenceStructure(words)
 
 
 class TestStringMethods(unittest.TestCase):
@@ -72,10 +68,10 @@ class TestStringMethods(unittest.TestCase):
         self.assertTrue(isHindi("वह घर पर है"))
 
     def test_real_sentence2(self):
-        self.assertTrue(isHindi("मैंने किताब पढ़ी"))
+        self.assertTrue(isHindi("मैंने किताब पढ़ी")) #past tense fail
 
     def test_real_sentence3(self):
-        self.assertTrue(isHindi("चिड़िया चली गई"))
+        self.assertTrue(isHindi("चिड़िया चली गई")) #past tense fail
     
     def test_real_sentence4(self):
         self.assertTrue(isHindi("सूरज उगता है"))
