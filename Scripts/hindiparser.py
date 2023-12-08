@@ -46,6 +46,69 @@ def mainFunction():
                 print("That was an invalid phrase!")
                 print("")
 
+def parseObjectAndDescription(words):
+    global objects, adjectives
+    '''
+        #returns a list of unparsed words, failure_state (as a bool), int index pointing to the word that failed. if no failure this is -1.
+
+        if you manage to parse everything here without failure, this means that what was parsed instead was the adj_phrase+subject part of the derivation, outside of this function
+        There is already an if statement that checks for this, just return an empty list.
+    '''
+    unparsedWords = words
+    fault_position = -1
+    if len(unparsedWords)>0:
+        current_word = unparsedWords[-1]
+        try:
+            objects.index(current_word)
+            unparsedWords.pop()
+        except ValueError:
+            return (unparsedWords, False, fault_position)
+        
+    if len(unparsedWords) == 0:
+        return ([], False, fault_position)
+    else: #section to use a while loop to remove adjectives.
+        while len(unparsedWords) > 0:
+            current_word = unparsedWords[-1]
+            #keep popping off words, as long as they exist within the list of adjectives.
+            try:
+                adjectives.index(current_word)
+                unparsedWords.pop()
+            except ValueError:
+                return (unparsedWords, False, fault_position)
+    return ([], False, fault_position)
+    '''Looking at the grammar sheet, we're right linear for most things, so we'll be deriving and popping from the end of the list, as arriving at words what don't belong to a certain section tells us when we're done with that section.
+        e.g. when we look at words[len(words)-1] === the last word, if this word is not an object, we stop deriving object, and we do NOT pop the word. If there is no object at all, then don't parse anything, and return.
+        if there is at least one object, pop the object words off, then start trying to derive adjectives. Once you are out of adjectives, return the current list of unparsed words.
+    '''
+
+
+def parseAdverbPhrase(words):
+    global adverbs
+    unparsedWords = words
+    fault_position = -1
+    try:
+            adverbs.index(current_word)
+            unparsedWords.pop()
+        except ValueError:
+            return (unparsedWords, False, fault_position)
+
+def parseAdverbFrequency(words):
+    global frequency_adverbs
+    unparsedWords = words
+    fault_position = -1
+
+def parseAdjectives(words):
+    global adjectives
+    unparsedWords = words
+    while len(unparsedWords) > 0:
+        current_word = unparsedWords[-1]
+        try:
+            adjectives.index(current_word)
+            unparsedWords.pop()
+        except ValueError:
+            return unparsedWords
+    return []
+
 
 def validSentenceStructure(words):
     global subjects, objects, verbs, adverbs, frequency_adverbs, adjectives, time, manner
@@ -92,21 +155,73 @@ def validSentenceStructure(words):
     except ValueError:
         print("No verb_supports, moving on.")
     try:
+        manner.index(words[len(words-1)])
+        words.pop() #Consumes the manner word from the string.
+    except ValueError:
+        print("No manner words, moving on.")
+    try:
         verbs.index(words[len(words-1)]) #Checks to see if the word exists within the list of verbs. If this doesn't throw a ValueError Exception, then it exists, and we continue.
         words.pop()
     except ValueError:
-        return (False, "A complete sentence requires at least one verb (with optional verb assist word), placed before the tense word in the sentence.")
+        return (False, "A complete sentence requires at least one verb (with optional verb manner and assist word), placed before the tense word in the sentence.")
     #At this point, we have passed all of the easy checks, and have potentially 1 or more words left to check.
 
     #At this step we may complete, as there is a lot of overlap between an object and it's description and a subject and it's description.
     #If it's actually an adj_phrase and subject and not an adj_phrase and an object, we would be out of words by the time it's done parsing.
-    words = parseObjectAndDescription(words) #returns a list of unparsed words.
+    words, failed, position = parseObjectAndDescription(words) #returns a list of unparsed words.
+    if(failed):
+        return (False, "There was an issue at position:",str(position),"during the parsing of Object and Description.")
     if(len(words)==0):
-        return (True, "This is a valid sentence.")
+        return (True, "Parsing successful.")
     
-    #Continue.
-
-
+    #Continue. Since len>0, this means that there are still words to go. Next is to check for singular manner again.
+    try:
+        manner.index(words[len(words-1)])
+        words.pop() #Consumes the manner word from the string.
+    except ValueError:
+        print("No manner words, moving on.")
+    if(len(words)==0):
+        return (False, "Manner cannot precede the adjective phrase and the subject.")
+    
+    #Continue. Next check is to see if there are time words. When describing time, you only use one word, so no need for a function.
+    try:
+        time.index(words[len(words-1)])
+        words.pop() #consumes the time word from the string.
+    except ValueError:
+        print("No time words, moving on.")
+    if(len(words)==0):
+        return (False, "Time cannot precede the adjective phrase and the subject.")
+    
+    #Continue. Next check to see if we have an adverb phrase to remove.
+    words, failed, position = parseAdverbPhrase(words)
+    if(len(words)==0):
+        return (False, "Adverbs cannot precede the adjective phrase and the subject.")
+    if(failed):
+        return (False, "Parsing failed at position:",position,"during parsing of the adverb phrase.")
+    
+    #Continue. There's some instances where we have a stem for the adverbs for timing.
+    words, failed, position = parseAdverbFrequency(words)
+    if(len(words)==0):
+        return (False, "Frequency adverbs cannot precede advective phrase and the subject.")
+    if(failed):
+        return (False, "Parsing failed at postion:",position,"during parsing of the adverbs for frequency.")
+    
+    #At this point, we only have subject and adj_phrases left to parse out. A subject is always a single word, so we'll use try method.
+    try:
+        subjects.index(words[len(words)-1])
+        words.pop()
+    except ValueError:
+        return (False, "Subject expected at position:",str(len(words)-1),"Saw:",words[-1],"instead.")
+    if(len(words)==0):
+        return (True, "Parsing Successful.")
+    
+    #Parse out final leading adjectives.
+    words = parseAdjectives(words)
+    if(len(words)==0):
+        return (True, "Parsing Successful.")
+    else:
+        return (False, "Adjective phrase expected at position:",str(len(words)-1),"Saw:",words[-1],"instead.")
+    
 
 
 
@@ -130,7 +245,10 @@ def loadWords():
 
 def isHindi(sentence):
     words = sentence.split(" ")
-    return validSentenceStructure(words)
+    status, message = validSentenceStructure(words)
+    evaluation = "Parsing Succssful" if status else "Parsing Failed: " + message
+    print(evaluation)
+    return status
 
 
 class TestStringMethods(unittest.TestCase):
@@ -138,12 +256,6 @@ class TestStringMethods(unittest.TestCase):
     def test_real_sentence1(self):
         self.assertTrue(isHindi("वह घर पर है"))
 
-    def test_real_sentence2(self):
-        self.assertTrue(isHindi("मैंने किताब पढ़ी")) #past tense fail
-
-    def test_real_sentence3(self):
-        self.assertTrue(isHindi("चिड़िया चली गई")) #past tense fail
-    
     def test_real_sentence4(self):
         self.assertTrue(isHindi("सूरज उगता है"))
 
@@ -194,6 +306,13 @@ class TestStringMethods(unittest.TestCase):
 
     def test_bad_sentence10(self):
         self.assertFalse(isHindi("वह हंसी से खुश है"))
+
+    def test_bad_sentence11(self):
+        self.assertFalse(isHindi("मैंने किताब पढ़ी")) #past tense fail
+
+    def test_bad_sentence12(self):
+        self.assertFalse(isHindi("चिड़िया चली गई")) #past tense fail
+    
 
 
 if __name__=='__main__':
