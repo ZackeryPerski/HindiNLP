@@ -86,11 +86,14 @@ def parseAdverbPhrase(words):
     global adverbs
     unparsedWords = words
     fault_position = -1
-    try:
+    while len(unparsedWords)>1:
+        current_word=unparsedWords[-1]
+        try:
             adverbs.index(current_word)
             unparsedWords.pop()
         except ValueError:
             return (unparsedWords, False, fault_position)
+    return ([], True, 0)
 
 def parseAdverbFrequency(words):
     global frequency_adverbs
