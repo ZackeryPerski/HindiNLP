@@ -1,4 +1,4 @@
-import json
+import pandas as pd
 import unittest
 
 '''
@@ -7,6 +7,15 @@ subject
 object
 But not both...
 '''
+
+subjects = []
+objects = []
+verbs = []
+adverbs = []
+frequency_adverbs = []
+adjectives = []
+time = []
+manner = []
 
 
 def introduction():
@@ -51,11 +60,23 @@ def validSentenceStructure(words):
         return (False, "A sentence cannot be in present tense without one of these ending present tense words: 'है' 'हूँ' 'हैं' 'हो' 'ता' 'ते' 'ती'")
     words.pop()#removes the last word which at this point contained a proper ending for the sentence and was a present tense word. The rest of the sentence is now considered.
     #At this point we need to start checking individual words agains the structure.
-    
 
 
 def loadWords():
-    print("To be implemented")
+    global subjects, objects, verbs, adverbs, frequency_adverbs, adjectives, time, manner
+    dataframe = pd.read_csv('Automata.csv',skip_blank_lines=True)
+    dataset = dataframe.values
+    objects=dataset[0]
+    subjects.append(dataset[1])
+    subjects.append(objects)
+    adjectives=dataset[2]
+    verbs=dataset[3]
+    adverbs=dataset[4]
+    time=dataset[5]
+    manner=dataset[6]
+    frequency_adverbs=dataset[7]
+    return
+
 
 def isHindi(sentence):
     words = sentence.split(" ")
