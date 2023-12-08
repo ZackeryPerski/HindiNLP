@@ -46,6 +46,18 @@ def mainFunction():
                 print("That was an invalid phrase!")
                 print("")
 
+def parseAdjectives(words):
+    global adjectives
+    unparsedWords = words
+    while len(unparsedWords) > 0:
+        current_word = unparsedWords[-1]
+        try:
+            adjectives.index(current_word)
+            unparsedWords.pop()
+        except ValueError:
+            return unparsedWords
+    return []
+
 def parseObjectAndDescription(words):
     global objects, adjectives
     '''
@@ -62,20 +74,10 @@ def parseObjectAndDescription(words):
             objects.index(current_word)
             unparsedWords.pop()
         except ValueError:
-            return (unparsedWords, False, fault_position)
-        
-    if len(unparsedWords) == 0:
-        return ([], False, fault_position)
-    else: #section to use a while loop to remove adjectives.
-        while len(unparsedWords) > 0:
-            current_word = unparsedWords[-1]
-            #keep popping off words, as long as they exist within the list of adjectives.
-            try:
-                adjectives.index(current_word)
-                unparsedWords.pop()
-            except ValueError:
-                return (unparsedWords, False, fault_position)
-    return ([], False, fault_position)
+            return (unparsedWords, False, fault_position) #More words left to parse, but the first word is not an object word, meaning that this is a lambda transition out of OBJECT_AND_DESCRIPTION in the grammar.
+    
+    return (parseAdjectives(unparsedWords), False, -1)
+
     '''Looking at the grammar sheet, we're right linear for most things, so we'll be deriving and popping from the end of the list, as arriving at words what don't belong to a certain section tells us when we're done with that section.
         e.g. when we look at words[len(words)-1] === the last word, if this word is not an object, we stop deriving object, and we do NOT pop the word. If there is no object at all, then don't parse anything, and return.
         if there is at least one object, pop the object words off, then start trying to derive adjectives. Once you are out of adjectives, return the current list of unparsed words.
@@ -99,18 +101,16 @@ def parseAdverbFrequency(words):
     global frequency_adverbs
     unparsedWords = words
     fault_position = -1
-
-def parseAdjectives(words):
-    global adjectives
-    unparsedWords = words
-    while len(unparsedWords) > 0:
-        current_word = unparsedWords[-1]
+    while len(unparsedWords)>1:
+        current_word=unparsedWords[-1]
         try:
-            adjectives.index(current_word)
+            frequency_adverbs.index(current_word)
             unparsedWords.pop()
         except ValueError:
-            return unparsedWords
-    return []
+            return (unparsedWords, False, fault_position)
+    return ([], True, 0)
+
+
 
 
 def validSentenceStructure(words):
@@ -258,6 +258,12 @@ class TestStringMethods(unittest.TestCase):
 
     def test_real_sentence1(self):
         self.assertTrue(isHindi("वह घर पर है"))
+
+    def test_real_sentence2(self):
+        self.assertTrue(isHindi())
+
+    def test_real_sentence3(self):
+        self.assertTrue(isHindi())
 
     def test_real_sentence4(self):
         self.assertTrue(isHindi("सूरज उगता है"))
