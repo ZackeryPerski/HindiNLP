@@ -16,7 +16,7 @@ frequency_adverbs = []
 adjectives = []
 time = []
 manner = []
-
+verb_supports = []
 
 def introduction():
     print("Welcome to the Hindi Parser!")
@@ -75,8 +75,8 @@ def validSentenceStructure(words):
     #Second check, the final word needs to be followed by a punctuation mark of some kind.
     lastWord = words[len(words)-1]
     lastSymbol = lastWord[len(lastWord)-1]
-    if (not(lastSymbol=="|" or lastSymbol=="?")):
-        return (False, "A complete sentence needs to end with a full stop '|' or a question mark '?'")
+    if (not(lastSymbol=="|" or lastSymbol=="?" or lastSymbol=="!")):
+        return (False, "A complete sentence needs to end with a full stop '|', a question mark '?', or an exclamation point '!'.")
     lastWord.pop() #We consume the punctuation mark off of the final word.  
 
     #Third check, the final word needs to be one of the following tense words. These are all of the valid words that represents 'present tense'.
@@ -84,22 +84,35 @@ def validSentenceStructure(words):
         return (False, "A sentence cannot be in present tense without one of these ending present tense words: 'है' 'हूँ' 'हैं' 'हो' 'ता' 'ते' 'ती'")
     words.pop() #We now consume this word from the stack of words by popping it off the end of the list.
 
-    #Fourth check, the word before the tense word is our second required word component
+    #Fourth check, the word before the tense word is our second required word component. Unlike prior components, verbs may have a supporting word that plays a similar role to our
+    #verbs ending in 'ing'
+    try:
+        verb_supports.index(words[len(words-1)]) #If non-existent, it's fine. but if it does exist, then we pop it off and move on.
+        words.pop() #Removes the verb_supports word from the end of the derivation. I've been told there is only ever 1 of these after a verb, hense the non-recursion here. 
+    except ValueError:
+        print("No verb_supports, moving on.")
     try:
         verbs.index(words[len(words-1)]) #Checks to see if the word exists within the list of verbs. If this doesn't throw a ValueError Exception, then it exists, and we continue.
         words.pop()
     except ValueError:
-        return (False, "A complete sentence requires at least one verb, placed before the tense word in the sentence.")
+        return (False, "A complete sentence requires at least one verb (with optional verb assist word), placed before the tense word in the sentence.")
+    #At this point, we have passed all of the easy checks, and have potentially 1 or more words left to check.
+
+    #At this step we may complete, as there is a lot of overlap between an object and it's description and a subject and it's description.
+    #If it's actually an adj_phrase and subject and not an adj_phrase and an object, we would be out of words by the time it's done parsing.
+    words = parseObjectAndDescription(words) #returns a list of unparsed words.
+    if(len(words)==0):
+        return (True, "This is a valid sentence.")
     
-    #At this point, we have passed all of the easy checks, and have 1 or more words left to check.
-    
+    #Continue.
+
 
 
 
 
 def loadWords():
     #TODO: Test this function.
-    global subjects, objects, verbs, adverbs, frequency_adverbs, adjectives, time, manner
+    global subjects, objects, verbs, adverbs, frequency_adverbs, adjectives, time, manner, verb_supports
     dataframe = pd.read_csv('Automata.csv',skip_blank_lines=True)
     dataset = dataframe.values
     objects=dataset[0]
@@ -111,6 +124,7 @@ def loadWords():
     time=dataset[5]
     manner=dataset[6]
     frequency_adverbs=dataset[7]
+    verb_supports = dataset[8]
     return
 
 
