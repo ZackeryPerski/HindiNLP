@@ -143,7 +143,7 @@ def validSentenceStructure(words):
     lastSymbol = lastWord[len(lastWord)-1]
     if (not(lastSymbol=="|" or lastSymbol=="?" or lastSymbol=="!")):
         return (False, "A complete sentence needs to end with a full stop '|', a question mark '?', or an exclamation point '!'.")
-    lastWord.pop() #We consume the punctuation mark off of the final word.  
+    lastWord = lastWord[:-1] #We consume the punctuation mark off of the final word.  
 
     #Third check, the final word needs to be one of the following tense words. These are all of the valid words that represents 'present tense'.
     if(not(lastWord=="है" or lastWord == "हूँ" or lastWord == "हैं" or lastWord == "हो" or lastWord == "ता" or lastWord == "ते" or lastWord == "ती")):
@@ -257,7 +257,7 @@ def isHindi(sentence):
 class TestStringMethods(unittest.TestCase):
 
     def test_real_sentence1(self):
-        self.assertTrue(isHindi("वह घर पर है"))
+        self.assertTrue(isHindi("वह घर पर है|"))
 
     def test_real_sentence2(self):
         self.assertTrue(isHindi())
@@ -266,61 +266,61 @@ class TestStringMethods(unittest.TestCase):
         self.assertTrue(isHindi())
 
     def test_real_sentence4(self):
-        self.assertTrue(isHindi("सूरज उगता है"))
+        self.assertTrue(isHindi("सूरज उगता है|"))
 
     def test_real_sentence5(self):
-        self.assertTrue(isHindi("बच्चे खेल रहे हैं"))
+        self.assertTrue(isHindi("बच्चे खेल रहे हैं|"))
 
     def test_real_sentence6(self):
-        self.assertTrue(isHindi("महिलाएँ बाज़ार में खरीदारी करती हैं"))
+        self.assertTrue(isHindi("महिलाएँ बाज़ार में खरीदारी करती हैं|"))
 
     def test_real_sentence7(self):
-        self.assertTrue(isHindi("कुत्ता भोंक रहा है"))
+        self.assertTrue(isHindi("कुत्ता भोंक रहा है|"))
 
     def test_real_sentence8(self):
-        self.assertTrue(isHindi("बच्चों ने गाना गाया"))
+        self.assertTrue(isHindi("बच्चों ने गाना गाया|"))
 
     def test_real_sentence9(self):
-        self.assertTrue(isHindi("मेरे दोस्त पार्क में खेल रहे हैं"))
+        self.assertTrue(isHindi("मेरे दोस्त पार्क में खेल रहे हैं|"))
 
     def test_real_sentence10(self):
-        self.assertTrue(isHindi("वह खुशी से हंस रहा है"))
+        self.assertTrue(isHindi("वह खुशी से हंस रहा है|"))
 
     def test_bad_sentence1(self):
-        self.assertFalse(isHindi("मैंने सूरज खरीदती"))
+        self.assertFalse(isHindi("मैंने सूरज खरीदती|"))
 
     def test_bad_sentence2(self):
-        self.assertFalse(isHindi("घर में बाज गा रही है"))
+        self.assertFalse(isHindi("घर में बाज गा रही है|"))
 
     def test_bad_sentence3(self):
-        self.assertFalse(isHindi("पेड़ पर खाना खाया"))
+        self.assertFalse(isHindi("पेड़ पर खाना खाया|"))
 
     def test_bad_sentence4(self):
-        self.assertFalse(isHindi("बिल्ली रोती है"))
+        self.assertFalse(isHindi("बिल्ली रोती है|"))
 
     def test_bad_sentence5(self):
-        self.assertFalse(isHindi("स्कूल बच्चों खेल रहे हैं"))
+        self.assertFalse(isHindi("स्कूल बच्चों खेल रहे हैं|"))
 
     def test_bad_sentence6(self):
-        self.assertFalse(isHindi("बाज़ार महिलाएँ खरीदते हैं"))
+        self.assertFalse(isHindi("बाज़ार महिलाएँ खरीदते हैं|"))
 
     def test_bad_sentence7(self):
-        self.assertFalse(isHindi("कुत्ता गाना गा रहा है"))
+        self.assertFalse(isHindi("कुत्ता गाना गा रहा है|"))
 
     def test_bad_sentence8(self):
-        self.assertFalse(isHindi("बच्चों किताब पढ़ते हैं"))
+        self.assertFalse(isHindi("बच्चों किताब पढ़ते हैं|"))
 
     def test_bad_sentence9(self):
-        self.assertFalse(isHindi("मेरे पार्क खेलते दोस्त हैं"))
+        self.assertFalse(isHindi("मेरे पार्क खेलते दोस्त हैं|"))
 
     def test_bad_sentence10(self):
-        self.assertFalse(isHindi("वह हंसी से खुश है"))
+        self.assertFalse(isHindi("वह हंसी से खुश है|"))
 
     def test_bad_sentence11(self):
-        self.assertFalse(isHindi("मैंने किताब पढ़ी")) #past tense fail
+        self.assertFalse(isHindi("मैंने किताब पढ़ी|")) #past tense fail
 
     def test_bad_sentence12(self):
-        self.assertFalse(isHindi("चिड़िया चली गई")) #past tense fail
+        self.assertFalse(isHindi("चिड़िया चली गई|")) #past tense fail
     
 
 
