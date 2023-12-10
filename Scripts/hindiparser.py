@@ -174,7 +174,7 @@ def validSentenceStructure(words):
     #If it's actually an adj_phrase and subject and not an adj_phrase and an object, we would be out of words by the time it's done parsing.
     words, failed, position = parseObjectAndDescription(words) #returns a list of unparsed words.
     if(failed):
-        return (False, "There was an issue at position:",str(position),"during the parsing of Object and Description.")
+        return (False, "There was an issue at position: "+str(position)+" during the parsing of Object and Description.")
     if(len(words)==0):
         return (True, "Parsing successful.")
     
@@ -201,21 +201,21 @@ def validSentenceStructure(words):
     if(len(words)==0):
         return (False, "Adverbs cannot precede the adjective phrase and the subject.")
     if(failed):
-        return (False, "Parsing failed at position:",position,"during parsing of the adverb phrase.")
+        return (False, "Parsing failed at position: "+position+" during parsing of the adverb phrase.")
     
     #Continue. There's some instances where we have a stem for the adverbs for timing.
     words, failed, position = parseAdverbFrequency(words)
     if(len(words)==0):
         return (False, "Frequency adverbs cannot precede advective phrase and the subject.")
     if(failed):
-        return (False, "Parsing failed at postion:",position,"during parsing of the adverbs for frequency.")
+        return (False, "Parsing failed at postion: "+position+" during parsing of the adverbs for frequency.")
     
     #At this point, we only have subject and adj_phrases left to parse out. A subject is always a single word, so we'll use try method.
     try:
         subjects.index(words[len(words)-1])
         words.pop()
     except ValueError:
-        return (False, "Subject expected at position:",str(len(words)-1),"Saw:",words[-1],"instead.")
+        return (False, "Subject expected at position:"+str(len(words)-1)+". Saw: "+words[-1]+", instead.")
     if(len(words)==0):
         return (True, "Parsing Successful.")
     
@@ -224,7 +224,7 @@ def validSentenceStructure(words):
     if(len(words)==0):
         return (True, "Parsing Successful.")
     else:
-        return (False, "Adjective phrase expected at position:",str(len(words)-1),"Saw:",words[-1],"instead.")
+        return (False, "Adjective phrase expected at position:"+str(len(words)-1)+". Saw: "+words[-1]+", instead.")
     
 
 
@@ -234,6 +234,9 @@ def loadWords():
     global subjects, objects, verbs, adverbs, frequency_adverbs, adjectives, time, manner, verb_supports
     dataframe = pd.read_csv('Automata.csv',skip_blank_lines=True)
     dataset = dataframe.values
+    print(dataset.shape)
+    dataset = dataset.T
+    print(dataset.shape)
     objects=dataset[0].tolist()
     subjects.append(dataset[1].tolist())
     subjects.append(objects)
@@ -260,13 +263,13 @@ class TestStringMethods(unittest.TestCase):
     def test_real_sentence1(self):
         self.assertTrue(isHindi("वह घर पर है|"))
 
-    def test_real_sentence2(self):
-        self.assertTrue(isHindi())
+    #def test_real_sentence2(self):
+    #    self.assertTrue(isHindi())
 
-    def test_real_sentence3(self):
-        self.assertTrue(isHindi())
-
-    def test_real_sentence4(self):
+    #def test_real_sentence3(self):
+    #    self.assertTrue(isHindi())
+    
+    def test_real_sentence4(self): #passed.
         self.assertTrue(isHindi("सूरज उगता है|"))
 
     def test_real_sentence5(self):
