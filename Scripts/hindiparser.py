@@ -153,17 +153,17 @@ def validSentenceStructure(words):
     #Fourth check, the word before the tense word is our second required word component. Unlike prior components, verbs may have a supporting word that plays a similar role to our
     #verbs ending in 'ing'
     try:
-        verb_supports.index(words[len(words-1)]) #If non-existent, it's fine. but if it does exist, then we pop it off and move on.
+        verb_supports.index(words[len(words)-1]) #If non-existent, it's fine. but if it does exist, then we pop it off and move on.
         words.pop() #Removes the verb_supports word from the end of the derivation. I've been told there is only ever 1 of these after a verb, hense the non-recursion here. 
     except ValueError:
         print("No verb_supports, moving on.")
     try:
-        manner.index(words[len(words-1)])
+        manner.index(words[len(words)-1])
         words.pop() #Consumes the manner word from the string.
     except ValueError:
         print("No manner words, moving on.")
     try:
-        verbs.index(words[len(words-1)]) #Checks to see if the word exists within the list of verbs. If this doesn't throw a ValueError Exception, then it exists, and we continue.
+        verbs.index(words[len(words)-1]) #Checks to see if the word exists within the list of verbs. If this doesn't throw a ValueError Exception, then it exists, and we continue.
         words.pop()
     except ValueError:
         return (False, "A complete sentence requires at least one verb (with optional verb manner and assist word), placed before the tense word in the sentence.")
@@ -179,7 +179,7 @@ def validSentenceStructure(words):
     
     #Continue. Since len>0, this means that there are still words to go. Next is to check for singular manner again.
     try:
-        manner.index(words[len(words-1)])
+        manner.index(words[len(words)-1])
         words.pop() #Consumes the manner word from the string.
     except ValueError:
         print("No manner words, moving on.")
@@ -188,7 +188,7 @@ def validSentenceStructure(words):
     
     #Continue. Next check is to see if there are time words. When describing time, you only use one word, so no need for a function.
     try:
-        time.index(words[len(words-1)])
+        time.index(words[len(words)-1])
         words.pop() #consumes the time word from the string.
     except ValueError:
         print("No time words, moving on.")
@@ -233,16 +233,16 @@ def loadWords():
     global subjects, objects, verbs, adverbs, frequency_adverbs, adjectives, time, manner, verb_supports
     dataframe = pd.read_csv('Automata.csv',skip_blank_lines=True)
     dataset = dataframe.values
-    objects=dataset[0]
-    subjects.append(dataset[1])
+    objects=dataset[0].tolist()
+    subjects.append(dataset[1].tolist())
     subjects.append(objects)
-    adjectives=dataset[2]
-    verbs=dataset[3]
-    adverbs=dataset[4]
-    time=dataset[5]
-    manner=dataset[6]
-    frequency_adverbs=dataset[7]
-    verb_supports = dataset[8]
+    adjectives=dataset[2].tolist()
+    verbs=dataset[3].tolist()
+    adverbs=dataset[4].tolist()
+    time=dataset[5].tolist()
+    manner=dataset[6].tolist()
+    frequency_adverbs=dataset[7].tolist()
+    verb_supports = dataset[8].tolist()
     return
 
 
