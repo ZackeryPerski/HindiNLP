@@ -77,19 +77,22 @@ def parseObjectAndDescription(words):
         except ValueError:
             return (unparsedWords, False, fault_position) #More words left to parse, but the first word is not an object word, meaning that this is a lambda transition out of OBJECT_AND_DESCRIPTION in the grammar.
     
+    #Here we had at least one object word, we're going to remove additional object words here, if there are any before attempting to remove adjectives.
+    while len(unparsedWords)>0:
+        current_word = unparsedWords[-1]
+        try:
+            objects.index(current_word)
+            unparsedWords.pop()
+        except ValueError:
+            break
     return (parseAdjectives(unparsedWords), False, -1)
-
-    '''Looking at the grammar sheet, we're right linear for most things, so we'll be deriving and popping from the end of the list, as arriving at words what don't belong to a certain section tells us when we're done with that section.
-        e.g. when we look at words[len(words)-1] === the last word, if this word is not an object, we stop deriving object, and we do NOT pop the word. If there is no object at all, then don't parse anything, and return.
-        if there is at least one object, pop the object words off, then start trying to derive adjectives. Once you are out of adjectives, return the current list of unparsed words.
-    '''
 
 
 def parseAdverbPhrase(words):
     global adverbs
     unparsedWords = words
     fault_position = -1
-    while len(unparsedWords)>1:
+    while len(unparsedWords)>0:
         current_word=unparsedWords[-1]
         try:
             adverbs.index(current_word)
@@ -102,7 +105,7 @@ def parseAdverbFrequency(words):
     global frequency_adverbs
     unparsedWords = words
     fault_position = -1
-    while len(unparsedWords)>1:
+    while len(unparsedWords)>0:
         current_word=unparsedWords[-1]
         try:
             frequency_adverbs.index(current_word)
@@ -112,6 +115,29 @@ def parseAdverbFrequency(words):
     return ([], True, 0)
 
 
+def parseSubjectString(words):
+    '''Sometimes subjects are represented by multiple words. We need at least one subject however to finish parsing. A failure here is significantly meaningful.'''
+    global subjects, adjectives
+    unparsedWords = words
+    fault_position = -1
+    if len(unparsedWords)>0:
+        current_word = unparsedWords[-1]
+        try:
+            subjects.index(current_word)
+            unparsedWords.pop()
+        except ValueError:
+            return (unparsedWords, True, len(unparsedWords)-1) #fault out here. At this point we need to parse at least one subject word to proceed.
+        
+    #Here we had at least one subject word, we're going to remove additional object words here, if there are any before attempting to remove adjectives.
+    while len(unparsedWords)>0:
+        current_word = unparsedWords[-1]
+        try:
+            subjects.index(current_word)
+            unparsedWords.pop()
+        except ValueError:
+            break
+    return (unparsedWords, False, -1)
+    
 
 
 def validSentenceStructure(words):
@@ -211,14 +237,11 @@ def validSentenceStructure(words):
         return (False, "Parsing failed at postion: "+position+" during parsing of the adverbs for frequency.")
     
     #At this point, we only have subject and adj_phrases left to parse out. A subject is always a single word, so we'll use try method.
-    try:
-        subjects.index(words[len(words)-1])
-        words.pop()
-    except ValueError:
-        return (False, "Subject expected at position:"+str(len(words)-1)+". Saw: "+words[-1]+", instead.")
+    words, fault, faultPos = parseSubjectString(words)
     if(len(words)==0):
         return (True, "Parsing Successful.")
-    
+    if fault:
+        return (False, "Parsing failed at position: "+str(faultPos)+" at word: "+words[faultPos])
     #Parse out final leading adjectives.
     words = parseAdjectives(words)
     if(len(words)==0):
@@ -228,18 +251,14 @@ def validSentenceStructure(words):
     
 
 
-
 def loadWords():
     #TODO: Test this function.
     global subjects, objects, verbs, adverbs, frequency_adverbs, adjectives, time, manner, verb_supports
     dataframe = pd.read_csv('Automata.csv',skip_blank_lines=True)
     dataset = dataframe.values
-    print(dataset.shape)
-    dataset = dataset.T
-    print(dataset.shape)
+    dataset = dataset.T #Makes it so that the dataset is actually in column format.
     objects=dataset[0].tolist()
-    subjects.append(dataset[1].tolist())
-    subjects.append(objects)
+    subjects=dataset[1].tolist()+objects
     adjectives=dataset[2].tolist()
     verbs=dataset[3].tolist()
     adverbs=dataset[4].tolist()
@@ -260,7 +279,7 @@ def isHindi(sentence):
 
 class TestStringMethods(unittest.TestCase):
 
-    def test_real_sentence1(self):
+    def test_real_sentence1(self): #passed. 
         self.assertTrue(isHindi("वह घर पर है|"))
 
     #def test_real_sentence2(self):
@@ -272,59 +291,59 @@ class TestStringMethods(unittest.TestCase):
     def test_real_sentence4(self): #passed.
         self.assertTrue(isHindi("सूरज उगता है|"))
 
-    def test_real_sentence5(self):
+    def test_real_sentence5(self): #passed.
         self.assertTrue(isHindi("बच्चे खेल रहे हैं|"))
 
     def test_real_sentence6(self):
         self.assertTrue(isHindi("महिलाएँ बाज़ार में खरीदारी करती हैं|"))
 
-    def test_real_sentence7(self):
+    def test_real_sentence7(self): #passed.
         self.assertTrue(isHindi("कुत्ता भोंक रहा है|"))
 
     def test_real_sentence8(self):
-        self.assertTrue(isHindi("बच्चों ने गाना गाया|"))
+        self.assertTrue(isHindi("बच्चों ने गाना गाया|")) #Incorrectly labeled, this is a past tense sentence.
 
-    def test_real_sentence9(self):
+    def test_real_sentence9(self): #passed.
         self.assertTrue(isHindi("मेरे दोस्त पार्क में खेल रहे हैं|"))
 
-    def test_real_sentence10(self):
+    def test_real_sentence10(self): #passed.
         self.assertTrue(isHindi("वह खुशी से हंस रहा है|"))
 
-    def test_bad_sentence1(self):
+    def test_bad_sentence1(self): #passed
         self.assertFalse(isHindi("मैंने सूरज खरीदती|"))
 
-    def test_bad_sentence2(self):
+    def test_bad_sentence2(self): #passed
         self.assertFalse(isHindi("घर में बाज गा रही है|"))
 
-    def test_bad_sentence3(self):
+    def test_bad_sentence3(self): #passed
         self.assertFalse(isHindi("पेड़ पर खाना खाया|"))
 
-    def test_bad_sentence4(self):
+    def test_bad_sentence4(self): #passed
         self.assertFalse(isHindi("बिल्ली रोती है|"))
 
-    def test_bad_sentence5(self):
+    def test_bad_sentence5(self): #passed
         self.assertFalse(isHindi("स्कूल बच्चों खेल रहे हैं|"))
 
-    def test_bad_sentence6(self):
+    def test_bad_sentence6(self): #passed
         self.assertFalse(isHindi("बाज़ार महिलाएँ खरीदते हैं|"))
 
-    def test_bad_sentence7(self):
+    def test_bad_sentence7(self): #passed
         self.assertFalse(isHindi("कुत्ता गाना गा रहा है|"))
 
-    def test_bad_sentence8(self):
+    def test_bad_sentence8(self): #passed
         self.assertFalse(isHindi("बच्चों किताब पढ़ते हैं|"))
 
-    def test_bad_sentence9(self):
+    def test_bad_sentence9(self): #passed
         self.assertFalse(isHindi("मेरे पार्क खेलते दोस्त हैं|"))
 
-    def test_bad_sentence10(self):
+    def test_bad_sentence10(self): #passed
         self.assertFalse(isHindi("वह हंसी से खुश है|"))
 
-    def test_bad_sentence11(self):
-        self.assertFalse(isHindi("मैंने किताब पढ़ी|")) #past tense fail
+    def test_bad_sentence11(self): #passed
+        self.assertFalse(isHindi("मैंने किताब पढ़ी|"))
 
-    def test_bad_sentence12(self):
-        self.assertFalse(isHindi("चिड़िया चली गई|")) #past tense fail
+    def test_bad_sentence12(self): #passed
+        self.assertFalse(isHindi("चिड़िया चली गई|"))
     
 
 
