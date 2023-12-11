@@ -316,7 +316,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertTrue(inputPhrases("वह खुशी से हंस रहा है| मेरे दोस्त पार्क में खेल रहे हैं|"))
 
     def test_real_paragraph2(self):
-        self.assertTrue(inputPhrases("वह सुंदर दिखती है| वह स्वादिष्ट खाना बनाती है| वह अच्छी लड़की है|"))
+        self.assertTrue(inputPhrases("वह सुंदर दिखती है| वह स्वादिष्ट खाना बनाती है| वह अपनी पढ़ाई में बहुत मेहनत करती है| मैं कुछ नहीं करता हूँ|"))
 
     def test_bad_sentence1(self): #passed
         self.assertFalse(inputPhrases("मैंने सूरज खरीदती|"))
